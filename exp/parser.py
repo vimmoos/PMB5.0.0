@@ -1,5 +1,8 @@
 import argparse
 
+# TODO
+# Create the arguments parser
+
 
 def create_arg_parser():
     base_args = dict(

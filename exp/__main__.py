@@ -1,37 +1,9 @@
-from src.model.exp import wrapper, dataset, hyper, parser
+from exp import wrapper, dataset, hyper, parser
 import torch
 from pathlib import Path
 import wandb
 
 torch.cuda.empty_cache()
-
-
-args = parser.create_arg_parser()
-
-# train process
-lang = args.lang
-batch_size = 5
-data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
-
-train_dataloader = dataset.get_dataloader(
-    data_path("train", args.train), batch_size=batch_size
-)
-test_dataloader = dataset.get_dataloader(
-    data_path("test", args.test), batch_size=batch_size
-)
-dev_dataloader = dataset.get_dataloader(
-    data_path("dev", args.dev), batch_size=batch_size
-)
-
-names = [
-    "GermanT5/t5-efficient-gc4-all-german-small-el32",
-    "sonoisa/t5-base-japanese",
-    "yhavinga/t5-base-dutch",
-    "google/flan-t5-base",
-    "gsarti/it5-base",  # en batch_size 5 outof ram
-    # "google/mt5-base",
-    # "GermanT5/t5-efficient-gc4-all-german-large-nl36",
-]
 
 
 def run_exp(name: str):
@@ -88,5 +60,34 @@ def run_exp(name: str):
     wandb.finish()
 
 
-for name in names:
-    run_exp(name)
+args = parser.create_arg_parser()
+
+# train process
+lang = args.lang
+batch_size = 10
+data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
+
+train_dataloader = dataset.get_dataloader(
+    data_path("train", args.train), batch_size=batch_size
+)
+test_dataloader = dataset.get_dataloader(
+    data_path("test", args.test), batch_size=batch_size
+)
+dev_dataloader = dataset.get_dataloader(
+    data_path("dev", args.dev), batch_size=batch_size
+)
+
+names = [
+    "GermanT5/t5-efficient-gc4-all-german-small-el32",
+    "sonoisa/t5-base-japanese",
+    "yhavinga/t5-base-dutch",
+    "google/flan-t5-base",
+    "gsarti/it5-base",  # en batch_size 5 outof ram
+    # "google/mt5-base",
+    # "GermanT5/t5-efficient-gc4-all-german-large-nl36",
+]
+
+run_exp(names[0])
+
+# for name in names:
+#     run_exp(name)

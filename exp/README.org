@@ -1,0 +1,52 @@
+* New Implementation
+** Installation
+ In order to run the code, first clone it on the machine then create a
+ python virtual environment.
+ Once created and in use install the ~reqs.txt~ file that can be found in
+ the root of the project.
+ #+BEGIN_SRC
+   pip install -r reqs.txt
+ #+END_SRC
+ Once install you should be ready to go.
+*** Weights & Biases
+wandb should be already installed after the pip command. To login and
+set it up follow this guide [[https://docs.wandb.ai/quickstart][quickstart]]
+** Code
+The code is structured as follows:
++ ~wrapper.py~
+  This file contain the main wrapper class. It is a generalization of
+  the previous =Generator= class. Mainly provides a train and evaluate
+  method for the model. Uses a base logging interface (The logger
+  class passed need to only have a method named log which takes *args)
++ ~dataset.py~
+  This file mostly copied from the old implementation. Define the
+  pytorch dataset for the sbn data and some data related utils
++ ~metric.py~
+  implements some basic metrics that can be used in validation.
+  The signature of a metric should be =str,str -> float=.
++ ~hyper.py~
+  Defines all the hyperparamenters for the experiments.
++ ~parser.py~
+  This file defines the argument parser for the =__main__=
++ ~__main__.py~
+  the core loop of the program. Given some arguments initialize the
+  hyperparamenters, set up wandb (if needed ) and run the experiment.
+** Run experiments
+To run experiments, activate the python environment and run the
+following:
+ #+BEGIN_SRC
+   python -m exp
+ #+END_SRC
+ You can add any of the already implemented command line
+ arguments. Use the help to see which one.
+ #+BEGIN_SRC
+   python -m exp --help
+ #+END_SRC
+* Current State
+for now there are only few command line arguments so if you want to
+run something different that the default modify the paramenters in the
+=__main__= file.
+* TODO
++ finish argument parser -> finish main
++ add early stopping
++ generate name_run -> finish dumping strategy

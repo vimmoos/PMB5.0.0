@@ -3,6 +3,8 @@ from pathlib import Path
 
 
 class SBNDataset(Dataset):
+    """Dataset class for SBN type of data."""
+
     def __init__(self, input_file_path: Path):
         # combine input: original text with masked sbn
         print(f"Reading lines from {input_file_path}")
@@ -31,6 +33,7 @@ def get_dataloader(
 
 
 def get_data_path(lang: str, split: str, version: str):
+    """Return the path of some data in the "data" folder of this project."""
     base_path = Path.cwd()
     return (
         base_path / "data" / "pmb-5.0.0" / "seq2seq" / lang / split / f"{version}.sbn"
