@@ -6,7 +6,7 @@ import wandb
 torch.cuda.empty_cache()
 
 
-def run_exp(name: str):
+def run_exp(name: str, wandb_bool: bool, print_bool: bool):
     print(f"running : {name}")
     conf = hyper.SBN_Experiment(
         model_name=name,
@@ -37,13 +37,19 @@ def run_exp(name: str):
         lang=lang,
     )
 
-    wandb.init(
-        entity="comp_sem",
-        project="first_run",
-        config=conf,
-    )
+    logger = wrapper.Print_Logger if print_bool else wrapper.No_Logger
+    if wandb_bool:
+        wandb.init(
+            entity="comp_sem",
+            project="first_run",
+            config=conf,
+        )
+        logger = wandb
 
-    wmodel = wrapper.Wrapper(**conf.select_kwargs(wrapper.Wrapper), logger=wandb)
+    wmodel = wrapper.Wrapper(
+        **conf.select_kwargs(wrapper.Wrapper),
+        logger=logger,
+    )
 
     print("Training")
     wmodel.train(train_dataloader, dev_dataloader)
@@ -57,10 +63,12 @@ def run_exp(name: str):
 
     wmodel.model.save_pretrained(msave_path)
 
-    wandb.finish()
+    if wandb_bool:
+        wandb.finish()
 
 
 args = parser.create_arg_parser()
+print(args.wandb)
 
 # train process
 lang = args.lang
@@ -87,7 +95,7 @@ names = [
     # "GermanT5/t5-efficient-gc4-all-german-large-nl36",
 ]
 
-run_exp(names[0])
+run_exp(names[0], wandb_bool=args.wandb, print_bool=args.print)
 
 # for name in names:
 #     run_exp(name)

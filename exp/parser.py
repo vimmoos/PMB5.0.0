@@ -1,7 +1,7 @@
 import argparse
 
 # TODO
-# Create the arguments parser
+# Create the arguments parserhttps://github.com/vimmoos/PMB5.0.0/tree/main/exp
 
 
 def create_arg_parser():
@@ -23,5 +23,7 @@ def create_arg_parser():
     base_args["default"] = "standard"
     parser.add_argument("-dti", "--dev", **base_args)
     parser.add_argument("-tti", "--test", **base_args)
+    parser.add_argument("--wandb", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--print", action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
     return args

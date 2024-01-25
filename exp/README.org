@@ -1,7 +1,7 @@
 * New Implementation
 ** Installation
  In order to run the code, first clone it on the machine then create a
- python virtual environment.
+ python virtual environment. Current used python version is: =Python 3.10.13=
  Once created and in use install the ~reqs.txt~ file that can be found in
  the root of the project.
  #+BEGIN_SRC
@@ -42,6 +42,7 @@ following:
  #+BEGIN_SRC
    python -m exp --help
  #+END_SRC
+ Please note that by default wandb is not used to use it add the flag =--wandb=
 * Current State
 for now there are only few command line arguments so if you want to
 run something different that the default modify the paramenters in the
