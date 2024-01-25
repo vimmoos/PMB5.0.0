@@ -54,21 +54,27 @@ SBN_ID = Tuple[Union[SBN_NODE_TYPE, SBN_EDGE_TYPE], int]
 
 def create_arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s1", '--sbn_file', default="G:\github\PMB5.0.0\data\pmb-5.0.0\\seq2seq\\nl\\test\\standard.sbn", type=str,
-                        help="file path of first sbn, one independent sbn should be in one line")
-    parser.add_argument("-s2", '--sbn_file2', default="G:\github\PMB5.0.0\src\model\\DRS-MLM\\result\\MLM_nl_standard.txt", type=str,
-                        help="file path of second sbn, one independent sbn should be in one line")
+    parser.add_argument(
+        "-s1",
+        "--sbn_file",
+        default="G:\github\PMB5.0.0\data\pmb-5.0.0\\seq2seq\\nl\\test\\standard.sbn",
+        type=str,
+        help="file path of first sbn, one independent sbn should be in one line",
+    )
+    parser.add_argument(
+        "-s2",
+        "--sbn_file2",
+        default="G:\github\PMB5.0.0\src\model\\DRS-MLM\\result\\MLM_nl_standard.txt",
+        type=str,
+        help="file path of second sbn, one independent sbn should be in one line",
+    )
     args = parser.parse_args()
     return args
 
 
 def ensure_ext(path: PathLike, extension: str) -> Path:
     """Make sure a path ends with a desired file extension."""
-    return (
-        Path(path)
-        if str(path).endswith(extension)
-        else Path(f"{path}{extension}")
-    )
+    return Path(path) if str(path).endswith(extension) else Path(f"{path}{extension}")
 
 
 def node_token_type(token):
@@ -109,10 +115,10 @@ class SBNSource(BaseEnum):
 
 class SBNGraph(BaseGraph):
     def __init__(
-            self,
-            incoming_graph_data=None,
-            source: SBNSource = SBNSource.UNKNOWN,
-            **attr,
+        self,
+        incoming_graph_data=None,
+        source: SBNSource = SBNSource.UNKNOWN,
+        **attr,
     ):
         super().__init__(incoming_graph_data, **attr)
         self.is_dag: bool = False
@@ -123,15 +129,11 @@ class SBNGraph(BaseGraph):
         self.continuation_boxer_index = []
         self.root = None
 
-    def from_path(
-            self, path: PathLike, is_single_line: bool = False
-    ) -> SBNGraph:
+    def from_path(self, path: PathLike, is_single_line: bool = False) -> SBNGraph:
         """Construct a graph from the provided filepath."""
         return self.from_string(Path(path).read_text(), is_single_line)
 
-    def from_string(
-            self, input_string: str, is_single_line: bool = False
-    ) -> SBNGraph:
+    def from_string(self, input_string: str, is_single_line: bool = False) -> SBNGraph:
         """Construct a graph from a single SBN string."""
         # Determine if we're dealing with an SBN file with newlines (from the
         # PMB for instance) or without (from neural output).
@@ -141,15 +143,11 @@ class SBNGraph(BaseGraph):
         lines = split_comments(input_string)
 
         if not lines:
-            raise SBNError(
-                "SBN doc appears to be empty, cannot read from string"
-            )
+            raise SBNError("SBN doc appears to be empty, cannot read from string")
 
         self.__init_type_indices()
 
-        starting_box = self.create_node(
-            SBN_NODE_TYPE.BOX, self._active_box_token
-        )
+        starting_box = self.create_node(SBN_NODE_TYPE.BOX, self._active_box_token)
 
         nodes, edges = [starting_box], []
 
@@ -166,7 +164,7 @@ class SBNGraph(BaseGraph):
                 # No need to check all tokens for this since only the first
                 # might be a sense id.
                 if tok_count == 0 and (
-                        synset_match := SBNSpec.SYNSET_PATTERN.match(token)
+                    synset_match := SBNSpec.SYNSET_PATTERN.match(token)
                 ):
                     synset_node = self.create_node(
                         SBN_NODE_TYPE.SYNSET,
@@ -193,9 +191,7 @@ class SBNGraph(BaseGraph):
                     # references other than -1. Maybe they are needed later and
                     # the exception triggers if something different comes up.
                     if not tokens:
-                        raise SBNError(
-                            f"Missing box index in line: {sbn_line}"
-                        )
+                        raise SBNError(f"Missing box index in line: {sbn_line}")
 
                     # Chunliu's code, available at \
                     # https://github.com/wangchunliu/SBN-evaluation-tool/blob/main/1.evaluation-tool-overall/ud_boxer/sbn.py
@@ -230,7 +226,7 @@ class SBNGraph(BaseGraph):
                             edges.append(box_edge)
 
                 elif (is_role := token in SBNSpec.ROLES) or (
-                        token in SBNSpec.DRS_OPERATORS
+                    token in SBNSpec.DRS_OPERATORS
                 ):
                     if not tokens:
                         raise SBNError(
@@ -249,9 +245,11 @@ class SBNGraph(BaseGraph):
                     else:
                         edge_type = SBN_EDGE_TYPE.DRS_OPERATOR
 
-
                     if index_match := SBNSpec.INDEX_PATTERN.match(target):
-                        if edge_type == SBN_EDGE_TYPE.ROLE or edge_type == SBN_EDGE_TYPE.DRS_OPERATOR:
+                        if (
+                            edge_type == SBN_EDGE_TYPE.ROLE
+                            or edge_type == SBN_EDGE_TYPE.DRS_OPERATOR
+                        ):
                             # if it's syn to syn connection
                             idx = self._try_parse_idx(index_match.group(0))
                             active_id = self._active_synset_id
@@ -312,7 +310,9 @@ class SBNGraph(BaseGraph):
                             edges.append(syn_box_edge)
 
                         else:
-                            raise SBNError(f"Missing target for '{token}' in line {sbn_line}")
+                            raise SBNError(
+                                f"Missing target for '{token}' in line {sbn_line}"
+                            )
 
                     elif SBNSpec.NAME_CONSTANT_PATTERN.match(target):
                         name_parts = [target]
@@ -356,9 +356,7 @@ class SBNGraph(BaseGraph):
                         nodes.append(const_node)
                         edges.append(role_edge)
                 else:
-                    raise SBNError(
-                        f"Invalid token found '{token}' in line: {sbn_line}"
-                    )
+                    raise SBNError(f"Invalid token found '{token}' in line: {sbn_line}")
                 tok_count += 1
 
         # merge nodes
@@ -370,12 +368,12 @@ class SBNGraph(BaseGraph):
         return self
 
     def create_edge(
-            self,
-            from_node_id: SBN_ID,
-            to_node_id: SBN_ID,
-            type: SBN_EDGE_TYPE,
-            token: Optional[str] = None,
-            meta: Optional[Dict[str, Any]] = None,
+        self,
+        from_node_id: SBN_ID,
+        to_node_id: SBN_ID,
+        type: SBN_EDGE_TYPE,
+        token: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
     ):
         """Create an edge, if no token is provided, the id will be used."""
         edge_id = self._id_for_type(type)
@@ -393,10 +391,10 @@ class SBNGraph(BaseGraph):
         )
 
     def create_node(
-            self,
-            type: SBN_NODE_TYPE,
-            token: Optional[str] = None,
-            meta: Optional[Dict[str, Any]] = None,
+        self,
+        type: SBN_NODE_TYPE,
+        token: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
     ):
         """Create a node, if no token is provided, the id will be used."""
         node_id = self._id_for_type(type)
@@ -426,9 +424,7 @@ class SBNGraph(BaseGraph):
         synset_idx_map: Dict[SBN_ID, int] = dict()
         line_idx = 0
 
-        box_nodes = [
-            node for node in self.nodes if node[0] == SBN_NODE_TYPE.BOX
-        ]
+        box_nodes = [node for node in self.nodes if node[0] == SBN_NODE_TYPE.BOX]
         for box_node_id in box_nodes:
             box_box_connect_to_insert = None
             for edge_id in self.out_edges(box_node_id):
@@ -446,8 +442,8 @@ class SBNGraph(BaseGraph):
                         box_box_connect_to_insert = edge_data["token"]
 
                 if to_node_type in (
-                        SBN_NODE_TYPE.SYNSET,
-                        SBN_NODE_TYPE.CONSTANT,
+                    SBN_NODE_TYPE.SYNSET,
+                    SBN_NODE_TYPE.CONSTANT,
                 ):
                     if to_node_id in synset_idx_map:
                         raise SBNError(
@@ -461,8 +457,8 @@ class SBNGraph(BaseGraph):
 
                         syn_edge_data = self.edges.get(syn_edge_id)
                         if syn_edge_data["type"] not in (
-                                SBN_EDGE_TYPE.ROLE,
-                                SBN_EDGE_TYPE.DRS_OPERATOR,
+                            SBN_EDGE_TYPE.ROLE,
+                            SBN_EDGE_TYPE.DRS_OPERATOR,
                         ):
                             raise SBNError(
                                 f"Invalid synset edge connect found: "
@@ -517,9 +513,7 @@ class SBNGraph(BaseGraph):
                         node_data = self.nodes.get(token)
                         tmp_line.append(node_data["token"])
                         comment_for_line = comment_for_line or (
-                            node_data["comment"]
-                            if "comment" in node_data
-                            else None
+                            node_data["comment"] if "comment" in node_data else None
                         )
                         current_syn_idx += 1
                     # It is a regular token
@@ -530,9 +524,7 @@ class SBNGraph(BaseGraph):
                     target = synset_idx_map[token] - current_syn_idx + 1
                     # In the PMB dataset, an index of '0' is written as '+0',
                     # so do that here as well.
-                    tmp_line.append(
-                        f"+{target}" if target >= 0 else str(target)
-                    )
+                    tmp_line.append(f"+{target}" if target >= 0 else str(target))
                 # It is a regular token
                 else:
                     tmp_line.append(token)
@@ -557,7 +549,7 @@ class SBNGraph(BaseGraph):
         return sbn_string
 
     def to_penman(
-            self, path: PathLike, evaluate_sense: bool = True, strict: bool = True
+        self, path: PathLike, evaluate_sense: bool = True, strict: bool = True
     ) -> PathLike:
         """
         Writes the SBNGraph to a file in Penman (AMR-like) format.
@@ -568,9 +560,7 @@ class SBNGraph(BaseGraph):
         final_path.write_text(self.to_penman_string(evaluate_sense, strict))
         return final_path
 
-    def to_penman_string(
-            self, evaluate_sense: bool = True, strict: bool = True
-    ) -> str:
+    def to_penman_string(self, evaluate_sense: bool = True, strict: bool = True) -> str:
         """
         Creates a string in Penman (AMR-like) format from the SBNGraph.
 
@@ -594,14 +584,11 @@ class SBNGraph(BaseGraph):
         problem.
         """
         if not self._check_is_dag():
-            raise SBNError(
-                "Exporting a cyclic SBN graph to Penman is not possible."
-            )
+            raise SBNError("Exporting a cyclic SBN graph to Penman is not possible.")
 
         if strict and self.is_possibly_ill_formed:
             raise SBNError(
-                "Strict evaluation mode, possibly ill-formed graph not "
-                "exported."
+                "Strict evaluation mode, possibly ill-formed graph not " "exported."
             )
 
         # Make a copy just in case since strange side-effects such as token
@@ -647,8 +634,10 @@ class SBNGraph(BaseGraph):
                         raise SBNError(f"Cannot split synset id: {node_tok}")
                     lemma, pos, sense = [self.quote(i) for i in components]
                     ### changed part
-                    wordnet = lemma.strip('"') + '.' + pos.strip('"') + '.' + sense.strip('"')
-                    out_str += f'({var_id} / {self.quote(wordnet)}'
+                    wordnet = (
+                        lemma.strip('"') + "." + pos.strip('"') + "." + sense.strip('"')
+                    )
+                    out_str += f"({var_id} / {self.quote(wordnet)}"
                     # out_str += f'({var_id} / {wordnet}'   # remove quote
                 elif var_id[0] != "c":
                     out_str += f"({var_id} / {self.quote(node_tok)}"
@@ -656,7 +645,7 @@ class SBNGraph(BaseGraph):
                 else:
                     out_str += f"{self.quote(node_tok)}"
                     # out_str += f"{node_tok}"  # remove quote
-            else: # if strict == False
+            else:  # if strict == False
                 if node_data["type"] == SBN_NODE_TYPE.SYNSET:
                     if not (components := split_synset_id(node_tok)):
                         raise SBNError(f"Cannot split synset id: {node_tok}")
@@ -702,9 +691,7 @@ class SBNGraph(BaseGraph):
 
                     _, child_node = edge_id
                     out_str += f" {indents}:{edge_name} "
-                    out_str = __to_penman_str(
-                        S, child_node, visited, out_str, tabs + 1
-                    )
+                    out_str = __to_penman_str(S, child_node, visited, out_str, tabs + 1)
             # # udboxer code
             # out_str += ")"
             # visited.add(var_id)
@@ -748,12 +735,10 @@ class SBNGraph(BaseGraph):
             SBN_EDGE_TYPE.DRS_OPERATOR: 0,
             SBN_EDGE_TYPE.BOX_CONNECT: 0,
             SBN_EDGE_TYPE.BOX_BOX_CONNECT: 0,
-            SBN_EDGE_TYPE.SYN_BOX_CONNECT: 0
+            SBN_EDGE_TYPE.SYN_BOX_CONNECT: 0,
         }
 
-    def _id_for_type(
-            self, type: Union[SBN_NODE_TYPE, SBN_EDGE_TYPE]
-    ) -> SBN_ID:
+    def _id_for_type(self, type: Union[SBN_NODE_TYPE, SBN_EDGE_TYPE]) -> SBN_ID:
         _id = (type, self.type_indices[type])
         self.type_indices[type] += 1
         return _id
@@ -825,7 +810,7 @@ class SBNGraph(BaseGraph):
             SBN_EDGE_TYPE.DRS_OPERATOR: {},
             SBN_EDGE_TYPE.BOX_CONNECT: {"style": "dotted", "label": ""},
             SBN_EDGE_TYPE.BOX_BOX_CONNECT: {},
-            SBN_EDGE_TYPE.SYN_BOX_CONNECT: {}
+            SBN_EDGE_TYPE.SYN_BOX_CONNECT: {},
         }
 
 
@@ -851,7 +836,7 @@ def sbn_graphs_are_isomorphic(A: SBNGraph, B: SBNGraph) -> bool:
 from smatch import score_amr_pairs
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = create_arg_parser()
 
     sbn_path = args.sbn_file
@@ -883,7 +868,9 @@ if __name__ == '__main__':
 
             try:
                 sbn2 = sbn_data2[i].strip()
-                penman2 = SBNGraph().from_string(sbn2, is_single_line=True).to_penman_string()
+                penman2 = (
+                    SBNGraph().from_string(sbn2, is_single_line=True).to_penman_string()
+                )
             except Exception as e:
                 ill_form += 1
                 print(f"generated sbn {i} error: {e}")
@@ -893,7 +880,9 @@ if __name__ == '__main__':
                 # test
                 penman1.replace("\n", " ")
                 penman2.replace("\n", " ")
-                for (precision, recall, best_f_score) in score_amr_pairs([penman1], [penman2], remove_top=True):
+                for precision, recall, best_f_score in score_amr_pairs(
+                    [penman1], [penman2], remove_top=True
+                ):
                     print(f"{i}:{best_f_score}")
                     average_f1 += best_f_score
             except Exception as e:
@@ -901,5 +890,3 @@ if __name__ == '__main__':
 
         print(f"average f1 smatch score: {average_f1/(len(sbn_data))}")
         print(f"ill-formed: {ill_form/(len(sbn_data))}")
-
-
