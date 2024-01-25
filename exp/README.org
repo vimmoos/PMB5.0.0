@@ -46,7 +46,7 @@ following:
 for now there are only few command line arguments so if you want to
 run something different that the default modify the paramenters in the
 =__main__= file.
-* TODO
+* TODOs
 + finish argument parser -> finish main
 + add early stopping
 + generate name_run -> finish dumping strategy
