@@ -13,11 +13,11 @@ import networkx as nx
 from os import PathLike
 from pathlib import Path
 from copy import deepcopy
-from penman_model import pm_model
-from graph_base import BaseEnum, BaseGraph
+from .penman_model import pm_model
+from .graph_base import BaseEnum, BaseGraph
 from typing import Any, Dict, Optional, Tuple, Union
 
-from sbn_spec import (
+from .sbn_spec import (
     SBN_EDGE_TYPE,
     SBN_NODE_TYPE,
     SBNError,
@@ -833,10 +833,9 @@ def sbn_graphs_are_isomorphic(A: SBNGraph, B: SBNGraph) -> bool:
     return nx.is_isomorphic(A, B, node_cmp, edge_cmp)
 
 
-from smatch import score_amr_pairs
-
-
 if __name__ == "__main__":
+    from .smatch import score_amr_pairs
+
     args = create_arg_parser()
 
     sbn_path = args.sbn_file

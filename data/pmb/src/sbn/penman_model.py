@@ -8,7 +8,7 @@ from typing import Any, List, Mapping
 from penman.model import Model, _ReificationSpec
 from penman.types import Role
 
-from sbn_spec import SBNSpec
+from .sbn_spec import SBNSpec
 
 __all__ = [
     "pm_model",

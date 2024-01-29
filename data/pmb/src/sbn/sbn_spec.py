@@ -6,7 +6,7 @@ There are some know issues with SBN that are being looked at:
       "The temperature was -1 degrees yesterday", -1 will be interpreted as an
       index and not a constant.
     - There are some synset id's that contain whitespace. This gives problems
-      for the tokenization. All examples can be found in 
+      for the tokenization. All examples can be found in
       'data/misc/whitespace_in_ids.txt' of this repo.
 """
 
@@ -15,7 +15,7 @@ from os import PathLike
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from graph_base import BaseEnum
+from .graph_base import BaseEnum
 
 __all__ = [
     "SBN_NODE_TYPE",
@@ -73,7 +73,7 @@ class SBNSpec:
         "SOURCE",
         "CONJUNCTION",
         "ELABORATION",
-        "COMMENTARY"
+        "COMMENTARY",
     }
 
     DRS_OPERATORS = {
@@ -105,7 +105,7 @@ class SBNSpec:
         "SY2",  # between
         "SXY",  # around
         "ANA",
-        "TCT"
+        "TCT",
     }
 
     INVERTIBLE_ROLES = {
@@ -201,13 +201,15 @@ class SBNSpec:
         "Order",
         "Participant",
         "FeatureOf",
-        "QuantityOf"
+        "QuantityOf",
     }
 
     # The lemma match might seem loose, however there can be a lot of different
     # characters in there: 'r/2.n.01', 'ø.a.01', 'josé_maria_aznar.n.01'
-    SYNSET_PATTERN = re.compile(r"(.+)\.(n|v|a|r|x)\.(\d+)")   # hint: add x to represent the anonymous entity
-    INDEX_PATTERN = re.compile(r"((-|\+|\<|\>)\d+)")   # add < and >
+    SYNSET_PATTERN = re.compile(
+        r"(.+)\.(n|v|a|r|x)\.(\d+)"
+    )  # hint: add x to represent the anonymous entity
+    INDEX_PATTERN = re.compile(r"((-|\+|\<|\>)\d+)")  # add < and >
     NAME_CONSTANT_PATTERN = re.compile(r"\"(.+)\"|\"(.+)")
 
     # NOTE: Now roles are properly handled instead of indirectly, but these
@@ -270,9 +272,7 @@ def split_comments(sbn_string: str) -> List[Tuple[str, Optional[str]]]:
         elif len(items) == 2:
             temp_lines.append((items[0], items[1]))
         else:
-            raise SBNError(
-                "Unreachable, multiple comments per line are impossible"
-            )
+            raise SBNError("Unreachable, multiple comments per line are impossible")
 
     return temp_lines
 
@@ -286,9 +286,7 @@ def split_single(sbn_string: str) -> str:
     final_tokens = []
 
     for token in tokens:
-        if SBNSpec.SYNSET_PATTERN.match(token) or (
-            token in SBNSpec.NEW_BOX_INDICATORS
-        ):
+        if SBNSpec.SYNSET_PATTERN.match(token) or (token in SBNSpec.NEW_BOX_INDICATORS):
             token = f"\n{token}"
         final_tokens.append(token)
 
