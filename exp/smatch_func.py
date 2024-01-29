@@ -3,11 +3,9 @@ Define a function that computes the smartch++ score between two strings.
 Uses the smatch++ code from the PMB 5.0.0 repo.
 """
 
-import sys
 
-sys.path.append("../data/pmb-5.0.0/src/sbn/")
-from sbn_smatch import SBNGraph
-from smatch import score_amr_pairs
+from data.pmb.src.sbn.sbn_smatch import SBNGraph
+from data.pmb.src.sbn.smatch import score_amr_pairs
 
 
 def compute_smatchpp(sbn1: str, sbn2: str, remove_top: bool = True) -> float:

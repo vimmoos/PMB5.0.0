@@ -5,6 +5,7 @@ from pathlib import Path
 import torch as th
 from tqdm import tqdm, trange
 from exp.metric import hamming_dist, similarity
+from exp.early_stopping import EarlyStopping
 import numpy as np
 
 ## Some base logger implementation
@@ -30,6 +31,17 @@ class Wrapper:
     """
 
     model_name: Union[str, Path]
+
+    # If true early stopping based on the val_metrics will be applied.
+    # Note: only the first metric in val_metrics will be used.
+    early_stopping: bool = True
+
+    early_stopping_kwargs: Dict[str, Any] = field(
+        default_factory=lambda: dict(
+            patience=3,
+            invert=True,
+        )
+    )
 
     # If tokenizer_name is None than it defaults to the model_name
     tokenizer_name: Optional[Union[str, Path]] = None
@@ -116,6 +128,8 @@ class Wrapper:
             self.model.parameters(), **self.optimizer_kwargs
         )
 
+        self.early_stop = EarlyStopping(**self.early_stopping_kwargs)
+
     def tok(self, text: str):
         """Encode a given text.
         It automatically sends its to the default device.
@@ -167,13 +181,18 @@ class Wrapper:
                 pred_text.extend([self.decode(out) for out in out_put])
                 target_text.extend(list(target))
 
-        if save_path is None:
-            out_put = self.eval_metrics(pred_text, target_text)
-            self.logger.log(out_put)
-            return out_put
+        out_put = self.eval_metrics(pred_text, target_text)
+        self.logger.log(out_put)
+        stop: bool = False
+        if self.early_stopping:
+            print(self.early_stop)
+            print(out_put[f"val/{self.val_metrics[0].__name__}"])
+            stop = self.early_stop(out_put[f"val/{self.val_metrics[0].__name__}"])
 
-        with open(save_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(pred_text))
+        if save_path is not None:
+            with open(save_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(pred_text))
+        return out_put, stop
 
     def train(self, train_loader, val_loader):
         """Performs training on the model.
@@ -193,5 +212,7 @@ class Wrapper:
                 self.optimizer.zero_grad()
                 self.logger.log({"train/loss": loss.detach().item()})
 
-            if epoch > 2 and epoch % self.val_epoch == 0:
-                self.evaluate(val_loader)
+            if epoch > 1 and epoch % self.val_epoch == 0:
+                _, stop = self.evaluate(val_loader)
+                if stop:
+                    return

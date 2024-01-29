@@ -35,6 +35,4 @@ def get_dataloader(
 def get_data_path(lang: str, split: str, version: str):
     """Return the path of some data in the "data" folder of this project."""
     base_path = Path.cwd()
-    return (
-        base_path / "data" / "pmb-5.0.0" / "seq2seq" / lang / split / f"{version}.sbn"
-    )
+    return base_path / "data" / "pmb" / "seq2seq" / lang / split / f"{version}.sbn"
