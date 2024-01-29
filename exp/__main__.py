@@ -77,7 +77,9 @@ while True:
 
         if batch_size <= 1:
             print("Cannot run this model no matter the batch_size")
-            break
+            if args.wandb:
+                wandb.finish
+            exit()
         if args.wandb:
             wandb.config.batch_size = batch_size
         train_dataloader, dev_dataloader, _ = gen_data(batch_size, args.lang)
