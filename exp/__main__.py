@@ -72,7 +72,7 @@ rsave_path = Path.cwd() / "results"
 rsave_path.mkdir(parents=True, exist_ok=True)
 wmodel.evaluate(
     test_dataloader,
-    rsave_path / experiment_name + ".txt",
+    rsave_path / f"{experiment_name}.txt",
 )
 
 msave_path = Path.cwd() / "models" / experiment_name
