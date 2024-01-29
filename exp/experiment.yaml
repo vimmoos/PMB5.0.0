@@ -1,0 +1,48 @@
+command:
+  - ${env}
+  - ${interpreter}
+  - -m
+  - exp
+  - --wandb
+  - --early_stop
+  - ${args}
+method: grid
+metric:
+  goal: maximize
+  name: val/compute_smatchpp
+parameters:
+  train:
+    values:
+      - gold
+      - gold_silver
+      - gold_silver_bronze
+  dev:
+    values:
+      - standard
+  test:
+    values:
+      - standard
+  epoch:
+    values:
+      - 100
+  batch_size:
+    values:
+      - 32
+  learning_rate:
+    values:
+      - 0.0001
+  optimizer:
+    values:
+      - AdamW
+  val_epoch:
+    values:
+      - 2
+  model_name:
+    values:
+      - GermanT5/t5-efficient-gc4-all-german-small-el32
+      - sonoisa/t5-base-japanese
+      - yhavinga/t5-base-dutch
+      - google/flan-t5-base
+      - gsarti/it5-base
+      - google/mt5-base
+      - GermanT5/t5-efficient-gc4-all-german-large-nl36

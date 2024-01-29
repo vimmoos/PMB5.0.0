@@ -17,14 +17,14 @@ def compute_smatchpp(sbn1: str, sbn2: str, remove_top: bool = True) -> float:
         penman1 = SBNGraph().from_string(sbn1, is_single_line=True).to_penman_string()
     except Exception as e:
         # print(f"sbn1 error: {e}")
-        return 0
+        return 0.0
 
     try:
         sbn2 = sbn2.strip()
         penman2 = SBNGraph().from_string(sbn2, is_single_line=True).to_penman_string()
     except Exception as e:
         # print(f"sbn2 error: {e}")
-        return 0
+        return 0.0
 
     # compute smatch score
     f1_score = 0.0
@@ -46,7 +46,7 @@ def main() -> None:
 
     # load test data
     with open(
-        "../data/pmb-5.0.0/seq2seq/nl/test/standard.sbn",
+        "../data/pmb/seq2seq/nl/test/standard.sbn",
         "r",
         encoding="utf-8",
     ) as inp:

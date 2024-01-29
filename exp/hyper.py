@@ -7,17 +7,15 @@ class SBN_Experiment:
     """Dataclass for storing all the hyperparameters of an experiment."""
 
     early_stopping: bool
-    # Number of epoch to train for
-    epoch: int
-    batch_size: int
+
+    # Model name from hugging fac
+    model_name: str
 
     # Type of training data
     train_data: str
 
     # optimizer arguments like lr ect.
     optimizer_kwargs: Dict[str, Any]
-    # optimizer class
-    optimizer_cls: object
 
     # Language used for the train,val and test data
     lang: str
@@ -26,8 +24,13 @@ class SBN_Experiment:
     # So if set to 2 the model will be evaluated after train epoch: 2,4,6...
     val_epoch: int
 
-    # Model name from hugging fac
-    model_name: str
+    # optimizer class
+    optimizer_cls: object
+
+    # Number of epoch to train for
+    epoch: int
+    batch_size: int
+
     # Tokenizer name from hugging face
     tokenizer_name: str
 
@@ -53,7 +56,3 @@ class SBN_Experiment:
                 set(datacls.__dataclass_fields__.keys())
             )
         }
-
-
-def dict_to_string(input_dict):
-    return "{" + ", ".join(f"{k}: {v!r}" for k, v in input_dict.items()) + "}"

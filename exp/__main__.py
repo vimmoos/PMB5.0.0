@@ -86,7 +86,7 @@ if args.wandb:
 #     "sonoisa/t5-base-japanese",
 #     "yhavinga/t5-base-dutch",
 #     "google/flan-t5-base",
-#     "gsarti/it5-base",  # en batch_size 5 outof ram
+#     "gsarti/it5-base",
 #     # "google/mt5-base",
 #     # "GermanT5/t5-efficient-gc4-all-german-large-nl36",
 # ]
