@@ -16,6 +16,12 @@ parameters:
       - gold
       - gold_silver
       - gold_silver_bronze
+  lang:
+    values:
+      - en
+      - it
+      - de
+      - nl
   dev:
     values:
       - standard
@@ -27,7 +33,7 @@ parameters:
       - 100
   batch_size:
     values:
-      - 32
+      - 64
   learning_rate:
     values:
       - 0.0001

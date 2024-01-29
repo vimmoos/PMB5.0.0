@@ -6,21 +6,27 @@ import wandb
 torch.cuda.empty_cache()
 
 
+def gen_data(batch_size, lang):
+    data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
+
+    train_dataloader = dataset.get_dataloader(
+        data_path("train", args.train), batch_size=batch_size
+    )
+    test_dataloader = dataset.get_dataloader(
+        data_path("test", args.test), batch_size=batch_size
+    )
+    dev_dataloader = dataset.get_dataloader(
+        data_path("dev", args.dev), batch_size=batch_size
+    )
+    return train_dataloader, test_dataloader, dev_dataloader
+
+
 args = parser.create_arg_parser()
 
 # train process
-lang = args.lang
-batch_size = args.batch_size
-data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
-
-train_dataloader = dataset.get_dataloader(
-    data_path("train", args.train), batch_size=batch_size
-)
-test_dataloader = dataset.get_dataloader(
-    data_path("test", args.test), batch_size=batch_size
-)
-dev_dataloader = dataset.get_dataloader(
-    data_path("dev", args.dev), batch_size=batch_size
+train_dataloader, test_dataloader, dev_dataloader = gen_data(
+    args.batch_size,
+    args.lang,
 )
 
 print(f"running : {args.model_name}")
@@ -35,7 +41,7 @@ conf = hyper.SBN_Experiment(
         lr=args.learning_rate,
     ),
     train_data=args.train,
-    lang=lang,
+    lang=args.lang,
     batch_size=args.batch_size,
 )
 
@@ -62,7 +68,22 @@ wmodel = wrapper.Wrapper(
 )
 
 print("Training")
-wmodel.train(train_dataloader, dev_dataloader)
+batch_size = args.batch_size
+while True:
+    try:
+        wmodel.train(train_dataloader, dev_dataloader)
+    except torch.cuda.OutOfMemoryError:
+        batch_size //= 2
+
+        if batch_size <= 1:
+            print("Cannot run this model no matter the batch_size")
+            break
+        if args.wandb:
+            wandb.config.batch_size = batch_size
+        train_dataloader, dev_dataloader, _ = gen_data(batch_size, args.lang)
+        print(f"OutOfMemoryError Trying with batch_size {batch_size}")
+        continue
+    break
 print("Eval")
 
 rsave_path = Path.cwd() / "results"
