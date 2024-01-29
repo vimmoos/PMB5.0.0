@@ -60,9 +60,6 @@ wmodel = wrapper.Wrapper(
     ],
     logger=logger,
 )
-print(args)
-print(conf)
-print(wmodel)
 
 print("Training")
 wmodel.train(train_dataloader, dev_dataloader)

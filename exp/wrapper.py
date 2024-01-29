@@ -185,8 +185,6 @@ class Wrapper:
         self.logger.log(out_put)
         stop: bool = False
         if self.early_stopping:
-            print(self.early_stop)
-            print(out_put[f"val/{self.val_metrics[0].__name__}"])
             stop = self.early_stop(out_put[f"val/{self.val_metrics[0].__name__}"])
 
         if save_path is not None:
