@@ -29,7 +29,7 @@ conf = hyper.SBN_Experiment(
     early_stopping=args.early_stop,
     model_name=args.model_name,
     tokenizer_name=args.tokenizer_name or args.model_name,
-    epoch=args.epoch,
+    epoch=args.epochs,
     val_epoch=args.val_epoch,
     optimizer_cls=getattr(torch.optim, args.optimizer),
     optimizer_kwargs=dict(
@@ -74,7 +74,7 @@ wmodel.evaluate(
 )
 
 try:
-    msave_path = os.environ['MODEL_SAVEPATH'] + experiment_name
+    msave_path = Path(os.environ['MODEL_SAVEPATH'] + experiment_name)
 except KeyError:
     msave_path = Path.cwd() / "models" / experiment_name
     

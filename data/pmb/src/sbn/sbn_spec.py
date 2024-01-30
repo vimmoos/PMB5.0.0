@@ -15,7 +15,7 @@ from os import PathLike
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from .graph_base import BaseEnum
+from graph_base import BaseEnum
 
 __all__ = [
     "SBN_NODE_TYPE",

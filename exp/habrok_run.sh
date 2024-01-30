@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# NOTE: Run this script from the same folder it is in (exp)
+
 # set environment variables
 export HF_HUB_CACHE="/scratch/$USER/.cache/huggingface/hubS"
 export MODEL_SAVEPATH="/scratch/$USER/compsem_models/"
@@ -28,5 +30,5 @@ pip install -r requirements.txt | grep -v 'already satisfied'
 
 # running the script
 echo "-> Running __main__.py"
-python3 __main__.py --language en --model_name t5-base --train-split gold --epochs 8 --print
+python3 __main__.py --language en --model_name t5-base --train-split gold --epochs 2 --print
 # for more comand line args run `python3 __main__.py --help` or look in parser.py

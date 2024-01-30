@@ -13,11 +13,11 @@ import networkx as nx
 from os import PathLike
 from pathlib import Path
 from copy import deepcopy
-from .penman_model import pm_model
-from .graph_base import BaseEnum, BaseGraph
+from penman_model import pm_model
+from graph_base import BaseEnum, BaseGraph
 from typing import Any, Dict, Optional, Tuple, Union
 
-from .sbn_spec import (
+from sbn_spec import (
     SBN_EDGE_TYPE,
     SBN_NODE_TYPE,
     SBNError,
