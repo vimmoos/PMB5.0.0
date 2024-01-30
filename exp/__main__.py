@@ -50,10 +50,10 @@ def single_run(args):
     experiment_name = conf.name_run
     if args.wandb:
         run = wandb.init(
+            reinit=True,
             entity="comp_sem",
             project=args.wandb_project,
             config=conf,
-            reinit=True,
         )
         logger = run
         experiment_name = f"{conf.name_run}_{wandb.run.path.replace('/','_')}"
@@ -84,10 +84,10 @@ def single_run(args):
             if args.wandb:
                 run.finish()
                 run = wandb.init(
+                    reinit=True,
                     entity="comp_sem",
                     project=args.wandb_project,
                     config=conf,
-                    reinit=True,
                 )
                 logger = run
                 run.config["final_batch_size"] = batch_size
