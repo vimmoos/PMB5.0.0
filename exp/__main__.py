@@ -49,12 +49,13 @@ def single_run(args):
 
     experiment_name = conf.name_run
     if args.wandb:
-        wandb.init(
+        run = wandb.init(
             entity="comp_sem",
             project=args.wandb_project,
             config=conf,
+            reinit=True,
         )
-        logger = wandb
+        logger = run
         experiment_name = f"{conf.name_run}_{wandb.run.path.replace('/','_')}"
 
     wmodel = wrapper.Wrapper(
@@ -78,16 +79,18 @@ def single_run(args):
             if batch_size <= 1:
                 print("Cannot run this model no matter the batch_size")
                 if args.wandb:
-                    wandb.finish()
+                    run.finish()
                     exit()
             if args.wandb:
-                wandb.finish()
-                wandb.init(
+                run.finish()
+                run = wandb.init(
                     entity="comp_sem",
                     project=args.wandb_project,
                     config=conf,
+                    reinit=True,
                 )
-                wandb.config["final_batch_size"] = batch_size
+                logger = run
+                run.config["final_batch_size"] = batch_size
 
             torch.cuda.empty_cache()
             gc.collect()
@@ -119,7 +122,7 @@ def single_run(args):
     wmodel.model.save_pretrained(msave_path)
 
     if args.wandb:
-        wandb.finish()
+        run.finish()
 
 
 args = parser.create_arg_parser()
