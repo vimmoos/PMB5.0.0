@@ -1,26 +1,27 @@
-from exp import wrapper, dataset, hyper, parser, metric, smatch_func
+import wrapper, dataset, hyper, parser, metric, smatch_func
 import torch
 from pathlib import Path
 import wandb
+import os
 
 torch.cuda.empty_cache()
 
 
-args = parser.create_arg_parser()
+args = parser.parse_args()
 
 # train process
-lang = args.lang
+lang = args.language
 batch_size = args.batch_size
 data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
 
 train_dataloader = dataset.get_dataloader(
-    data_path("train", args.train), batch_size=batch_size
+    data_path("train", args.train_split), batch_size=batch_size
 )
 test_dataloader = dataset.get_dataloader(
-    data_path("test", args.test), batch_size=batch_size
+    data_path("test", args.test_split), batch_size=batch_size
 )
 dev_dataloader = dataset.get_dataloader(
-    data_path("dev", args.dev), batch_size=batch_size
+    data_path("dev", args.dev_split), batch_size=batch_size
 )
 
 print(f"running : {args.model_name}")
@@ -34,7 +35,7 @@ conf = hyper.SBN_Experiment(
     optimizer_kwargs=dict(
         lr=args.learning_rate,
     ),
-    train_data=args.train,
+    train_data=args.train_split,
     lang=lang,
     batch_size=args.batch_size,
 )
@@ -61,10 +62,10 @@ wmodel = wrapper.Wrapper(
     logger=logger,
 )
 
-print("Training")
+print(f"---- Fine-tuning {args.model_name} ----")
 wmodel.train(train_dataloader, dev_dataloader)
-print("Eval")
 
+print("---- Evaluating model ----")
 rsave_path = Path.cwd() / "results"
 rsave_path.mkdir(parents=True, exist_ok=True)
 wmodel.evaluate(
@@ -72,21 +73,14 @@ wmodel.evaluate(
     rsave_path / f"{experiment_name}.txt",
 )
 
-msave_path = Path.cwd() / "models" / experiment_name
+try:
+    msave_path = os.environ['MODEL_SAVEPATH'] + experiment_name
+except KeyError:
+    msave_path = Path.cwd() / "models" / experiment_name
+    
 msave_path.mkdir(parents=True, exist_ok=True)
 
 wmodel.model.save_pretrained(msave_path)
 
 if args.wandb:
     wandb.finish()
-
-
-# names = [
-#     "GermanT5/t5-efficient-gc4-all-german-small-el32",
-#     "sonoisa/t5-base-japanese",
-#     "yhavinga/t5-base-dutch",
-#     "google/flan-t5-base",
-#     "gsarti/it5-base",  # en batch_size 5 outof ram
-#     # "google/mt5-base",
-#     # "GermanT5/t5-efficient-gc4-all-german-large-nl36",
-# ]
