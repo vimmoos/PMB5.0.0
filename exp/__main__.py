@@ -2,6 +2,7 @@ from exp import wrapper, dataset, hyper, parser, metric, smatch_func
 import torch
 from pathlib import Path
 import wandb
+import gc
 
 torch.cuda.empty_cache()
 
@@ -88,6 +89,9 @@ while True:
                 config=conf,
             )
             wandb.config["final_batch_size"] = batch_size
+
+        torch.cuda.empty_cache()
+        gc.collect()
         train_dataloader, dev_dataloader, _ = gen_data(batch_size, args.lang)
         wmodel = wrapper.Wrapper(
             **conf.select_kwargs(wrapper.Wrapper),
