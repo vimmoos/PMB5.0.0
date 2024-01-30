@@ -81,7 +81,7 @@ while True:
                 wandb.finish
             exit()
         if args.wandb:
-            wandb.config.batch_size = batch_size
+            wandb.config["final_batch_size"] = batch_size
         train_dataloader, dev_dataloader, _ = gen_data(batch_size, args.lang)
         print(f"OutOfMemoryError Trying with batch_size {batch_size}")
         continue
