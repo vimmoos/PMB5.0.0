@@ -90,7 +90,7 @@ def create_arg_parser():
     parser.add_argument(
         "--model_name",
         type=str,
-        default="google/flan-t5-base",
+        default=None,
         required=False,
         help="Model name, must belong to some model in the transformers library",
     )

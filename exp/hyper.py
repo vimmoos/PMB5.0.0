@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field, asdict
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 
 @dataclass
@@ -56,3 +56,16 @@ class SBN_Experiment:
                 set(datacls.__dataclass_fields__.keys())
             )
         }
+
+
+multilingual: List[str] = ["google/flan-t5-base", "google/mt5-base"]
+
+lang_to_model: Dict[str, List[str]] = {
+    "it": ["gsarti/it5-base"],
+    "en": [],
+    "nl": ["yhavinga/t5-base-dutch"],
+    "de": [
+        "GermanT5/t5-efficient-gc4-all-german-small-el32",
+        "GermanT5/t5-efficient-gc4-all-german-large-nl36",
+    ],
+}
