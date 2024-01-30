@@ -57,20 +57,19 @@ def single_run(args):
         logger = wandb
         experiment_name = f"{conf.name_run}_{wandb.run.path.replace('/','_')}"
 
-    wmodel = wrapper.Wrapper(
-        **conf.select_kwargs(wrapper.Wrapper),
-        val_metrics=[
-            smatch_func.compute_smatchpp,
-            metric.hamming_dist,
-            metric.similarity,
-        ],
-        logger=logger,
-    )
-
     print("Training")
     batch_size = args.batch_size
     while True:
         try:
+            wmodel = wrapper.Wrapper(
+                **conf.select_kwargs(wrapper.Wrapper),
+                val_metrics=[
+                    smatch_func.compute_smatchpp,
+                    metric.hamming_dist,
+                    metric.similarity,
+                ],
+                logger=logger,
+            )
             wmodel.train(train_dataloader, dev_dataloader)
         except torch.cuda.OutOfMemoryError:
             batch_size //= 2
@@ -124,9 +123,11 @@ def single_run(args):
 
 args = parser.create_arg_parser()
 
-if args.model_name is not None:
+allowed_model = hyper.multilingual + hyper.lang_to_model[args.lang]
+if args.model_name in allowed_model:
     single_run(args)
-
-for x in hyper.multilingual + hyper.lang_to_model[args.lang]:
-    args.model_name = x
-    single_run(args)
+else:
+    if args.wandb:
+        wandb.init()
+        wandb.finish()
+    print("Invalid parameters configuration")
