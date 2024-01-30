@@ -3,9 +3,10 @@ Define a function that computes the smartch++ score between two strings.
 Uses the smatch++ code from the PMB 5.0.0 repo.
 """
 
-
-from data.pmb.src.sbn.sbn_smatch import SBNGraph
-from data.pmb.src.sbn.smatch import score_amr_pairs
+import sys
+sys.path.append("../data/pmb/src/sbn/")
+from sbn_smatch import SBNGraph
+from smatch import score_amr_pairs
 
 
 def compute_smatchpp(sbn1: str, sbn2: str, remove_top: bool = True) -> float:
@@ -35,8 +36,8 @@ def compute_smatchpp(sbn1: str, sbn2: str, remove_top: bool = True) -> float:
             score_amr_pairs([penman1], [penman2], remove_top=remove_top)
         )
     except Exception as e:
+        print(f"smatch error: {e}")
         pass
-        # print(f"smatch error: {e}")
 
     return f1_score
 

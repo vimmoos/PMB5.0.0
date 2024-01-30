@@ -4,8 +4,8 @@ from typing import Union, Dict, Any, Optional, Callable, List
 from pathlib import Path
 import torch as th
 from tqdm import tqdm, trange
-from exp.metric import hamming_dist, similarity
-from exp.early_stopping import EarlyStopping
+from metric import hamming_dist, similarity
+from early_stopping import EarlyStopping
 import numpy as np
 
 ## Some base logger implementation
