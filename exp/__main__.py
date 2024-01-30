@@ -83,6 +83,15 @@ while True:
         if args.wandb:
             wandb.config["final_batch_size"] = batch_size
         train_dataloader, dev_dataloader, _ = gen_data(batch_size, args.lang)
+        wmodel = wrapper.Wrapper(
+            **conf.select_kwargs(wrapper.Wrapper),
+            val_metrics=[
+                smatch_func.compute_smatchpp,
+                metric.hamming_dist,
+                metric.similarity,
+            ],
+            logger=logger,
+        )
         print(f"OutOfMemoryError Trying with batch_size {batch_size}")
         continue
     break
