@@ -7,6 +7,7 @@ import gc
 
 torch.cuda.empty_cache()
 
+
 def gen_data(batch_size, lang):
     data_path = lambda x, y, lang=lang: dataset.get_data_path(lang, x, y)
 
@@ -50,7 +51,6 @@ def single_run(args):
     experiment_name = conf.name_run
     if args.wandb:
         run = wandb.init(
-            reinit=True,
             entity="comp_sem",
             project=args.wandb_project,
             config=conf,
@@ -84,7 +84,6 @@ def single_run(args):
             if args.wandb:
                 run.finish()
                 run = wandb.init(
-                    reinit=True,
                     entity="comp_sem",
                     project=args.wandb_project,
                     config=conf,
@@ -117,7 +116,7 @@ def single_run(args):
     )
 
     try:
-        msave_path = Path(os.environ['MODEL_SAVEPATH'] + experiment_name)
+        msave_path = Path(os.environ["MODEL_SAVEPATH"] + experiment_name)
     except KeyError:
         msave_path = Path.cwd() / "models" / experiment_name
     msave_path.mkdir(parents=True, exist_ok=True)
@@ -128,11 +127,12 @@ def single_run(args):
         run.finish()
 
 
-args = parser.parse_args()
-
-if args.model_name is not None:
+args = parser.create_arg_parser()
+allowed_model = hyper.multilingual + hyper.lang_to_model[args.lang]
+if args.model_name in allowed_model:
     single_run(args)
-
-# for x in hyper.multilingual + hyper.lang_to_model[args.lang]:
-#     args.model_name = x
-#     single_run(args)
+else:
+    if args.wandb:
+        wandb.init()
+        wandb.finish()
+    print("Invalid parameters configuration")
