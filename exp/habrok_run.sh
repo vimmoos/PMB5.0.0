@@ -28,7 +28,10 @@ source env/bin/activate
 echo "-> Installing/updating requirements.txt"
 pip install -r requirements.txt | grep -v 'already satisfied'
 
+# remove  the default smatch file so the correct function gets used
+rm env/lib/python3.11/site-packages/smatch.py
+
 # running the script
 echo "-> Running __main__.py"
-python3 __main__.py --language en --model_name t5-base --train-split gold --epochs 2 --print
+python3 __main__.py --language en --model_name t5-base --train-split gold --epochs 10 --print
 # for more comand line args run `python3 __main__.py --help` or look in parser.py
