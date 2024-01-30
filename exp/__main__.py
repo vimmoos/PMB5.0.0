@@ -50,7 +50,6 @@ def single_run(args):
     experiment_name = conf.name_run
     if args.wandb:
         run = wandb.init(
-            reinit=True,
             entity="comp_sem",
             project=args.wandb_project,
             config=conf,
@@ -84,7 +83,6 @@ def single_run(args):
             if args.wandb:
                 run.finish()
                 run = wandb.init(
-                    reinit=True,
                     entity="comp_sem",
                     project=args.wandb_project,
                     config=conf,
@@ -126,10 +124,11 @@ def single_run(args):
 
 
 args = parser.create_arg_parser()
-
-if args.model_name is not None:
+allowed_model = hyper.multilingual + hyper.lang_to_model[args.lang]
+if args.model_name in allowed_model:
     single_run(args)
-
-for x in hyper.multilingual + hyper.lang_to_model[args.lang]:
-    args.model_name = x
-    single_run(args)
+else:
+    if args.wandb:
+        wandb.init()
+        wandb.finish()
+    print("Invalid parameters configuration")
