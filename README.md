@@ -1,5 +1,8 @@
 # PMB5.0.0
 
+
+This is a fork of the original PMB5.0.0 repo. The main modified code with a readme can be found in the `exp` folder
+
 ## Table of Contents
 1. [Overview](##Overview)
 2. [Dataset Description](#Dataset-Description)

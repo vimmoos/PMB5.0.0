@@ -43,6 +43,3 @@ following:
    python -m exp --help
  #+END_SRC
  Please note that by default wandb is not used to use it add the flag =--wandb=
-* Current State
-Everything should be ready to run
-* TODOs
